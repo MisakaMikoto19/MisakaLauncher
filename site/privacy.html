@@ -35,15 +35,15 @@
 
     <h2><span data-lang="en">1. Summary</span><span data-lang="zh">1. 摘要</span></h2>
     <p>
-        <span data-lang="en">Misaka Launcher runs entirely on your computer. There is no account system, no telemetry and no analytics. Credentials obtained during sign-in are stored on your machine and are never sent to any server operated by this project.</span>
-        <span data-lang="zh">Misaka Launcher 完全在你本机运行。没有账号系统、没有遥测、没有统计。登录获得的凭据只保存在你的机器上，不会发送到本项目运营的任何服务器。</span>
+        <span data-lang="en">Misaka Launcher runs entirely on your computer. It has no server-side account system of its own, no telemetry and no analytics. Credentials obtained during sign-in are stored on your machine and are never sent to any server operated by this project.</span>
+        <span data-lang="zh">Misaka Launcher 完全在你本机运行。它没有自己的服务端账号系统，也没有遥测与统计。登录获得的凭据只保存在你的机器上，不会发送到本项目运营的任何服务器。</span>
     </p>
 
     <h2><span data-lang="en">2. What the launcher handles</span><span data-lang="zh">2. 启动器处理哪些数据</span></h2>
     <ul>
         <li>
-            <span data-lang="en"><strong>Microsoft account data.</strong> When you choose “Sign in with Microsoft”, the launcher performs an OAuth 2.0 authorization-code flow with PKCE in your system browser. The resulting Microsoft access token and refresh token, the Xbox Live and XSTS tokens derived from them, and the Minecraft access token are stored <em>locally</em> so you do not have to sign in again on every launch.</span>
-            <span data-lang="zh"><strong>微软账号数据。</strong> 选择「使用微软登录」时，启动器在你的系统浏览器中完成 OAuth 2.0 授权码（+ PKCE）流程。得到的微软访问令牌与刷新令牌、由此派生的 Xbox Live / XSTS 令牌，以及 Minecraft 令牌，都只<b>保存在本机</b>，以免每次启动都要重新登录。</span>
+            <span data-lang="en"><strong>Microsoft account data.</strong> When you choose “Sign in with Microsoft”, the launcher performs an OAuth 2.0 authorization-code flow with PKCE in your system browser. The Microsoft refresh token and the Minecraft access token are stored <em>locally</em> so you do not have to sign in again on every launch; the short-lived Xbox Live and XSTS tokens derived from them are only kept in memory for the current session.</span>
+            <span data-lang="zh"><strong>微软账号数据。</strong> 选择「使用微软登录」时，启动器在你的系统浏览器中完成 OAuth 2.0 授权码（+ PKCE）流程。微软刷新令牌与 Minecraft 令牌只<b>保存在本机</b>，以免每次启动都要重新登录；由此派生的 Xbox Live / XSTS 令牌生命周期很短，只在当次运行期间留在内存里。</span>
         </li>
         <li>
             <span data-lang="en"><strong>Player profile.</strong> The player name, UUID and skin that the Minecraft services endpoint returns for that account, used to display your profile and to start the game.</span>
@@ -77,8 +77,8 @@
 
     <h2><span data-lang="en">4. Where data is stored</span><span data-lang="zh">4. 数据保存在哪里</span></h2>
     <p>
-        <span data-lang="en">Everything is stored in the launcher's data directory on your computer. On Windows, account tokens are encrypted with DPAPI (per-user encryption). On other platforms the account file is protected by operating-system file permissions. Deleting an account in the launcher deletes its stored tokens; deleting the data directory removes everything the launcher ever stored.</span>
-        <span data-lang="zh">全部数据都保存在你电脑上启动器的数据目录中。Windows 上账号令牌使用 DPAPI（按用户加密）保护；其他平台依靠操作系统文件权限。在启动器中删除账户会同时删除其令牌；删除数据目录即清除启动器保存过的一切。</span>
+        <span data-lang="en">Everything is stored in the launcher's data directory on your computer. Account tokens are kept in the launcher's own configuration file there, protected by your operating system's file permissions — treat that folder like any other file containing a login token and do not share it. Deleting an account in the launcher deletes its stored tokens; deleting the data directory removes everything the launcher ever stored.</span>
+        <span data-lang="zh">全部数据都保存在你电脑上启动器的数据目录中。账号令牌也保存在该目录下启动器自己的配置文件里，依靠操作系统的文件权限保护 —— 请像对待任何含有登录令牌的文件一样对待这个目录，不要分享给他人。在启动器中删除账户会同时删除其令牌；删除数据目录即清除启动器保存过的一切。</span>
     </p>
 
     <h2><span data-lang="en">5. Logs</span><span data-lang="zh">5. 日志</span></h2>
@@ -96,9 +96,10 @@
         <li><code>login.microsoftonline.com</code> — <span data-lang="en">Microsoft sign-in (authorization code + PKCE, loopback redirect).</span><span data-lang="zh">微软登录（授权码 + PKCE，回环回调）。</span></li>
         <li><code>user.auth.xboxlive.com</code>, <code>xsts.auth.xboxlive.com</code> — <span data-lang="en">Xbox Live authentication.</span><span data-lang="zh">Xbox Live 认证。</span></li>
         <li><code>api.minecraftservices.com</code> — <span data-lang="en">obtaining the Minecraft token, verifying game ownership, reading the player profile.</span><span data-lang="zh">获取 Minecraft 令牌、校验正版拥有情况、读取玩家档案。</span></li>
-        <li><span data-lang="en">Mojang's public metadata and asset endpoints, plus community mirrors — downloading and verifying game files.</span><span data-lang="zh">Mojang 的公开元数据与资源地址，以及社区镜像 —— 下载并校验游戏文件。</span></li>
+        <li><code>piston-meta.mojang.com</code>, <code>resources.download.minecraft.net</code>, <code>libraries.minecraft.net</code>, <code>sessionserver.mojang.com</code> — <span data-lang="en">downloading and verifying game files, and reading the signed-in account's own skin. A community mirror is used only if you select one, or if the official address cannot be reached.</span><span data-lang="zh">下载并校验游戏文件、读取已登录账号自己的皮肤。社区镜像仅在你主动选择、或官方地址不可达时使用。</span></li>
         <li><code>api.modrinth.com</code>, <code>api.curseforge.com</code> — <span data-lang="en">mod, modpack and resource pack search, only when you use the download center.</span><span data-lang="zh">模组 / 整合包 / 资源包检索，仅在你使用下载中心时访问。</span></li>
-        <li><code>github.com</code> — <span data-lang="en">the launcher's own update check, if enabled.</span><span data-lang="zh">启动器自身更新检查（若启用）。</span></li>
+        <li><code>api.adoptium.net</code>, <code>api.github.com</code> (Dragonwell releases) — <span data-lang="en">downloading a Java runtime, only when the game version you start needs one that is not installed yet.</span><span data-lang="zh">下载 Java 运行时，仅在你启动的游戏版本需要、而本机尚未安装时。</span></li>
+        <li><span data-lang="en">An update service you configure: the launcher checks it once at startup unless you turn that off in the settings, and only downloads an update if you accept it. Out of the box the address points at <code>127.0.0.1</code>, so nothing is contacted.</span><span data-lang="zh">你自行配置的更新服务：除非在设置里关掉，启动器启动时会检查一次；只有你同意后才会下载更新。默认地址指向 <code>127.0.0.1</code>，即不会连接任何服务。</span></li>
         <li><span data-lang="en">A mod-sync server, <em>only</em> if you configure one yourself; it is disabled by default and points at <code>127.0.0.1</code>.</span><span data-lang="zh">模组同步服务器，<b>仅当你自行配置</b>时才会连接；默认关闭且地址指向 <code>127.0.0.1</code>。</span></li>
     </ul>
 

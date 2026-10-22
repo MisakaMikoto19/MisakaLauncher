@@ -246,8 +246,8 @@
                 </div>
                 <h3><span data-lang="en">Resource packs, reordered by drag</span><span data-lang="zh">资源包拖拽排序</span></h3>
                 <p>
-                    <span data-lang="en">Press and hold the handle to reorder; the list order is the override order. A generated atlas-compat pack stays locked at the end for AMD / Intel GPUs.</span>
-                    <span data-lang="zh">按住手柄即可拖动排序，列表顺序就是覆盖顺序。为 AMD / Intel 显卡生成的贴图兼容包锁定在末尾。</span>
+                    <span data-lang="en">Press and hold the handle to reorder; the list order is the override order. When a resource pack needs more texture space than the GPU allows — common on AMD and Intel cards — the launcher generates a compatibility pack and locks it at the end of the list.</span>
+                    <span data-lang="zh">按住手柄即可拖动排序，列表顺序就是覆盖顺序。当资源包需要的贴图尺寸超出显卡上限时（AMD / Intel 常见），启动器会生成一个贴图兼容包并锁定在列表末尾。</span>
                 </p>
             </div>
 
@@ -268,8 +268,8 @@
                 </div>
                 <h3><span data-lang="en">Self-update, or none at all</span><span data-lang="zh">可自更新，也可完全关掉</span></h3>
                 <p>
-                    <span data-lang="en">Incremental, hash-checked updates with rollback. Point it at your own server or turn it off — it never phones home on its own.</span>
-                    <span data-lang="zh">增量更新、逐块校验、可回滚；可以指向自建服务端，也可以直接关掉，默认不会私自上报。</span>
+                    <span data-lang="en">Chunked downloads with per-chunk SHA-256 checks; the previous files are kept until the new version has started, so a failed update leaves a working launcher behind. Point it at your own server, or turn the startup check off in the settings.</span>
+                    <span data-lang="zh">分块下载、逐块 SHA-256 校验；旧文件保留到新版本启动成功，替换失败也不会把启动器弄坏。可以指向自建服务端，也可以在设置里关掉启动时检查。</span>
                 </p>
             </div>
         </div>
@@ -291,12 +291,12 @@
                     <span data-lang="zh">登录使用微软标准流程（OAuth 2.0 授权码 + PKCE，公共客户端），在 <strong>你自己的系统浏览器</strong> 里完成；随后经 Xbox Live 与 XSTS，最后由 Minecraft 服务端确认账号是否拥有游戏。只申请 <code>XboxLive.signin</code> 与 <code>offline_access</code>。</span>
                 </p>
                 <p>
-                    <span data-lang="en">There is no backend account system. Tokens stay on your machine (DPAPI on Windows, file permissions elsewhere), are never sent to any server we operate, and are redacted from logs and crash reports.</span>
-                    <span data-lang="zh">没有自有账号服务器：令牌只保存在本机（Windows 用 DPAPI 加密），不会上传到本项目运营的任何服务器，日志与崩溃报告里的令牌会被脱敏。</span>
+                    <span data-lang="en">There is no backend account system. Tokens are written only to the launcher's own data folder on this machine, are never sent to any server we operate, and are redacted from the logs.</span>
+                    <span data-lang="zh">没有自有账号服务器：令牌只写入本机启动器自己的数据目录，不会上传到本项目运营的任何服务器，日志里的令牌会被脱敏。</span>
                 </p>
                 <p>
-                    <span data-lang="en">Sign-in is the only way into the game: there is no offline mode and no third-party account system. If the launcher reports that its application is not registered, the Microsoft application used by that build has not been approved by Mojang yet — please wait for the approval or use another launcher in the meantime.</span>
-                    <span data-lang="zh">登录是进入游戏的唯一方式：没有离线模式，也不接任何第三方账户体系。若提示应用未登记，说明该构建使用的微软应用尚未通过 Mojang 审核 —— 请等待审核通过，或暂时改用其它启动器。</span>
+                    <span data-lang="en">Sign-in is the only way into the game: there is no offline mode and no third-party account system. The launcher never starts the game for an account that does not own Minecraft: Java Edition.</span>
+                    <span data-lang="zh">登录是进入游戏的唯一方式：没有离线模式，也不接任何第三方账户体系。对于未拥有 Minecraft: Java Edition 的账号，启动器绝不会启动游戏。</span>
                 </p>
             </div>
 
@@ -386,16 +386,16 @@
             <details>
                 <summary><span data-lang="en">Where is my data stored?</span><span data-lang="zh">我的数据存在哪？</span></summary>
                 <p>
-                    <span data-lang="en">Everything lives in the launcher’s own folder (portable by default): instances, mods, saves, Java runtimes, logs and settings. Delete the folder to uninstall; there is no uninstaller and no registry litter.</span>
-                    <span data-lang="zh">全部在启动器自己的目录里（默认便携）：实例、模组、存档、Java 运行时、日志与设置。删掉目录即卸载，没有卸载程序和注册表残留。</span>
+                    <span data-lang="en">Everything lives in the launcher’s own folder (portable by default): instances, mods, saves, Java runtimes, logs, settings and the stored account tokens. The single-file build additionally unpacks its bundled runtime to <code>%LOCALAPPDATA%\MisakaLauncher\app\&lt;version&gt;</code> on first run — that folder is a cache and can be deleted at any time. Delete both to uninstall; there is no uninstaller and no registry litter.</span>
+                    <span data-lang="zh">全部在启动器自己的目录里（默认便携）：实例、模组、存档、Java 运行时、日志、设置与账号令牌。单文件版首次运行还会把自带运行时解压到 <code>%LOCALAPPDATA%\MisakaLauncher\app\&lt;版本&gt;</code>，那只是一个缓存目录，随时可以删。两处都删掉即完成卸载，没有卸载程序和注册表残留。</span>
                 </p>
             </details>
 
             <details>
                 <summary><span data-lang="en">Can I use my own update server?</span><span data-lang="zh">可以接自建的更新服务吗？</span></summary>
                 <p>
-                    <span data-lang="en">Yes. The update client speaks a small documented protocol (health, check, changelog, chunked download) and points at a configurable base URL; leaving it blank simply disables auto-update. The contract is in the repository under <code>docs/SELF-HOSTING.md</code>.</span>
-                    <span data-lang="zh">可以。更新客户端使用一套小而明确的协议（健康检查、检查更新、更新说明、分块下载），地址可配置；留空即关闭自动更新。接口契约见仓库里的 <code>docs/SELF-HOSTING.md</code>。</span>
+                    <span data-lang="en">Yes. The update client speaks a small documented protocol (health, check, changelog, chunked download) and points at a configurable base URL; leaving it blank, or switching off the startup check, disables it. The contract is in the repository under <code>docs/SELF-HOSTING.md</code>.</span>
+                    <span data-lang="zh">可以。更新客户端使用一套小而明确的协议（健康检查、检查更新、更新说明、分块下载），地址可配置；留空或关掉启动时检查即关闭更新。接口契约见仓库里的 <code>docs/SELF-HOSTING.md</code>。</span>
                 </p>
             </details>
         </div>
