@@ -1,0 +1,134 @@
+/*
+ * 浅色主题。
+ * 主色保持不变（品牌一致性），只调整明度与透明度关系。
+ */
+
+.root {
+    -c-bg: #F6F7FB;
+    -c-bg-alt: #FFFFFF;
+    /* 整窗外壳遮罩的浅色兜底值（代码侧按「覆盖层透明度」重写，见 base.css 同名令牌） */
+    -c-shell-veil: rgba(246, 247, 251, 0.86);
+    -c-card: rgba(255, 255, 255, 0.80);
+    -c-card-solid: #FFFFFF;
+    /* 浅色主题的高光是"更白"：白卡片上再叠暗色高光会显脏 */
+    -c-glass-sheen: rgba(255, 255, 255, 0.92);
+    -c-card-border: rgba(107, 77, 255, 0.16);
+    -c-card-border-strong: rgba(107, 77, 255, 0.38);
+
+    -c-text: #1B2030;
+    /* 浅底上的次级/弱化色比深色主题更需要压实一点：
+       原值在白底上对比不足，细描边图标（1.4px 描边）看起来像"没画上去" */
+    -c-text-dim: #4C5468;
+    -c-text-mute: #7A8397;
+
+    /* 浅色背景下降低紫的青度、略提对比，保证按钮文字与描边清晰 */
+    -c-accent: #6B4DFF;
+    -c-accent-2: #0E97AD;
+    -c-accent-3: #4B7BFF;
+    -c-accent-soft: rgba(107, 77, 255, 0.14);
+
+    -c-success: #0F9D62;
+    -c-warn: #B7791F;
+    -c-error: #D9483B;
+    -c-info: #2F6FDD;
+
+    -c-hover: rgba(27, 32, 48, 0.06);
+    -c-pressed: rgba(27, 32, 48, 0.12);
+    -c-track: rgba(27, 32, 48, 0.10);
+    -c-scroll: rgba(27, 32, 48, 0.22);
+    -c-scroll-hover: rgba(27, 32, 48, 0.36);
+    -c-shadow: rgba(27, 32, 48, 0.14);
+    -c-panel: rgba(255, 255, 255, 0.66);
+
+    /* 浅色主题的强调色更深，前景必须用白色，否则紫青渐变上的深色文字对比不足 */
+    -c-on-accent: #FFFFFF;
+    -c-on-accent-dim: rgba(255, 255, 255, 0.78);
+}
+
+.window-shell {
+    /* 强度见 base.css 的 -c-shell-veil：由「覆盖层透明度」实时驱动 */
+    -fx-background-color: -c-shell-veil;
+    -fx-border-color: rgba(27, 32, 48, 0.10);
+}
+
+/* 侧边栏内的浅色底元素需要换成深色半透明，否则白底上看不见 */
+.side-group-line,
+.divider {
+    -fx-background-color: rgba(27, 32, 48, 0.10);
+}
+
+.side-account {
+    -fx-background-color: rgba(27, 32, 48, 0.05);
+    -fx-border-color: rgba(27, 32, 48, 0.10);
+}
+
+.launch-card-caret {
+    -fx-background-color: rgba(255, 255, 255, 0.22);
+}
+
+.launch-card-caret:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.34);
+}
+
+/* ghost 按钮的底色在 base.css 里是「白色半透明」，那是给暗色底准备的。
+   浅色页面本身就是白的，这层白叠加等于不存在：按钮看不出边界、悬停也几乎无变化。
+   换成同语义的深色半透明，边界才重新可见。 */
+.ghost-button {
+    -fx-background-color: rgba(27, 32, 48, 0.05);
+    -fx-border-color: rgba(27, 32, 48, 0.18);
+}
+
+/* 悬停必须有明显的一跳：底色跨到强调色浅底 + 描边转强调色，
+   而不是从 5% 灰变到 6% 灰这种看不出来的差别 */
+.ghost-button:hover {
+    -fx-background-color: rgba(107, 77, 255, 0.16);
+    -fx-border-color: rgba(107, 77, 255, 0.62);
+}
+
+.launch-card-icon {
+    -fx-background-color: rgba(255, 255, 255, 0.30);
+}
+
+.text-field,
+.text-area,
+.password-field,
+.combo-box,
+.search-field {
+    -fx-background-color: rgba(27, 32, 48, 0.04);
+    -fx-border-color: rgba(27, 32, 48, 0.14);
+}
+
+.log-view {
+    -fx-background-color: rgba(255, 255, 255, 0.72);
+    -fx-border-color: rgba(27, 32, 48, 0.12);
+}
+
+.check-box .box {
+    -fx-background-color: rgba(27, 32, 48, 0.04);
+    -fx-border-color: rgba(27, 32, 48, 0.26);
+}
+
+.check-box:selected .mark {
+    -fx-background-color: #FFFFFF;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #FFFFFF;
+}
+
+.toast {
+    -fx-background-color: rgba(255, 255, 255, 0.97);
+}
+
+.tooltip {
+    -fx-background-color: rgba(255, 255, 255, 0.98);
+}
+
+.step-chip {
+    -fx-background-color: rgba(27, 32, 48, 0.04);
+    -fx-border-color: rgba(27, 32, 48, 0.12);
+}
+
+.badge {
+    -fx-background-color: rgba(27, 32, 48, 0.06);
+}

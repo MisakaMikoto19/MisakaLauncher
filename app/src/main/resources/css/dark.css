@@ -1,0 +1,54 @@
+/*
+ * 暗色主题（默认）。
+ * 只覆写颜色令牌与少量「暗色专属」的观感细节，结构与交互全部来自 base.css。
+ */
+
+.root {
+    -c-bg: #0B0E14;
+    -c-bg-alt: #10151F;
+    -c-card: rgba(20, 25, 38, 0.68);
+    -c-card-solid: #141926;
+    /* 毛玻璃高光（与 base.css 同值，这里显式声明便于主题文件自洽） */
+    -c-glass-sheen: rgba(255, 255, 255, 0.07);
+    -c-card-border: rgba(124, 92, 255, 0.20);
+    -c-card-border-strong: rgba(124, 92, 255, 0.42);
+
+    -c-text: #E6E8EF;
+    -c-text-dim: #9AA3B2;
+    -c-text-mute: #5A6273;
+
+    -c-accent: #7C5CFF;
+    -c-accent-2: #22D3EE;
+    -c-accent-3: #5B8CFF;
+    -c-accent-soft: rgba(124, 92, 255, 0.18);
+
+    -c-hover: rgba(255, 255, 255, 0.07);
+    -c-pressed: rgba(255, 255, 255, 0.12);
+    -c-track: rgba(255, 255, 255, 0.10);
+    -c-scroll: rgba(255, 255, 255, 0.16);
+    -c-scroll-hover: rgba(255, 255, 255, 0.30);
+    -c-shadow: rgba(0, 0, 0, 0.45);
+}
+
+.window-shell {
+    /* 强度见 base.css 的 -c-shell-veil：由「覆盖层透明度」实时驱动 */
+    -fx-background-color: -c-shell-veil;
+    -fx-border-color: rgba(255, 255, 255, 0.10);
+}
+
+.nav-rail,
+.status-bar {
+    -fx-background-color: rgba(10, 13, 20, 0.55);
+}
+
+.text-field,
+.text-area,
+.password-field,
+.combo-box,
+.search-field {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+}
+
+.log-view {
+    -fx-background-color: rgba(6, 8, 12, 0.55);
+}

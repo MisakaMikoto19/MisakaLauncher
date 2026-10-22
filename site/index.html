@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#07080d">
+    <title>Misaka Launcher — a modern launcher for Minecraft: Java Edition</title>
+    <meta name="description" content="Misaka Launcher is an unofficial, open-source desktop launcher for Minecraft: Java Edition: isolated instances, mod loader and Java management, Modrinth & CurseForge, modpack import, and resource pack ordering. Not affiliated with Mojang Studios or Microsoft.">
+    <link rel="icon" href="assets/icon.webp" type="image/webp">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Misaka Launcher — Minecraft: Java Edition launcher">
+    <meta property="og:description" content="Unofficial, open-source launcher: isolated instances, mod loaders and Java managed, Modrinth &amp; CurseForge, modpack import.">
+    <meta property="og:url" content="https://misakalauncher.org/">
+    <meta property="og:image" content="https://misakalauncher.org/assets/screenshot-home.png">
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="wrap">
+
+    <header class="top">
+        <a class="brand" href="index.html">
+            <img class="mark" src="assets/icon.webp" width="22" height="22" alt="">
+            Misaka Launcher
+        </a>
+        <nav class="top">
+            <a href="#features"><span data-lang="en">Features</span><span data-lang="zh">功能</span></a>
+            <a href="#download"><span data-lang="en">Download</span><span data-lang="zh">下载</span></a>
+            <a href="privacy.html"><span data-lang="en">Privacy</span><span data-lang="zh">隐私</span></a>
+            <a class="keep" href="https://github.com/MisakaMikoto19/MisakaLauncher">GitHub</a>
+            <span class="lang" role="group" aria-label="Language">
+                <button type="button" data-set-lang="en">EN</button>
+                <button type="button" data-set-lang="zh">中文</button>
+            </span>
+        </nav>
+    </header>
+
+    <!-- ================= Hero ================= -->
+    <section class="hero">
+        <div>
+            <div class="eyebrow">
+                <span class="dot"></span>
+                <span data-lang="en">Open source · MIT · no telemetry</span>
+                <span data-lang="zh">开源 · MIT · 无遥测</span>
+            </div>
+
+            <h1>
+                <span data-lang="en">A modern launcher for <span class="grad">Minecraft: Java Edition</span></span>
+                <span data-lang="zh">为 <span class="grad">Minecraft: Java Edition</span> 打造的现代启动器</span>
+            </h1>
+
+            <p class="lead">
+                <span data-lang="en">Isolated instances, one-click mod loader and Java setup, Modrinth and CurseForge search, modpack import, and drag-to-reorder resource packs — in a launcher that starts fast and stays out of the way.</span>
+                <span data-lang="zh">实例彼此隔离，加载器与 Java 一键装好；Modrinth、CurseForge 直接检索，整合包可导入；资源包拖拽排序。启动快，也不挡路。</span>
+            </p>
+
+            <div class="cta">
+                <a class="btn btn-primary" href="https://github.com/MisakaMikoto19/MisakaLauncher/releases/latest/download/MisakaLauncher-windows-x64.exe">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/>
+                    </svg>
+                    <span data-lang="en">Download for Windows</span>
+                    <span data-lang="zh">下载 Windows 版</span>
+                </a>
+                <a class="btn btn-ghost" href="https://github.com/MisakaMikoto19/MisakaLauncher/releases">
+                    <span data-lang="en">All releases</span>
+                    <span data-lang="zh">所有版本</span>
+                </a>
+            </div>
+
+            <div class="meta-row">
+                <span><i></i>Windows 10 / 11</span>
+                <span><i></i>Linux</span>
+                <span><i></i>macOS</span>
+                <span><i></i><span data-lang="en">Portable, no install</span><span data-lang="zh">免安装</span></span>
+                <span><i></i><span data-lang="en">Tokens stay local</span><span data-lang="zh">令牌只存本机</span></span>
+            </div>
+        </div>
+
+        <!-- 主视觉：优先用真实截图；截图缺失时回退到纯 CSS 模拟界面，避免出现裂图 -->
+        <figure class="hero-shot">
+            <img src="assets/screenshot-home.png" width="1100" height="696" decoding="async"
+                 alt="Misaka Launcher main window: instance sidebar, launch card and pre-launch checks"
+                 onerror="this.style.display='none';document.getElementById('hero-mock').style.display='block';">
+            <div class="mock" id="hero-mock" aria-hidden="true" style="display:none">
+            <div class="mock-bar">
+                <i></i><i></i><i></i>
+                <span class="url">Misaka Launcher</span>
+            </div>
+            <div class="mock-body">
+                <div class="mock-side">
+                    <div class="grp">Account</div>
+                    <div class="item"><b></b>Steve</div>
+                    <div class="grp">Game</div>
+                    <div class="item on"><b></b>Home</div>
+                    <div class="item"><b></b>Instances</div>
+                    <div class="item"><b></b>Download</div>
+                    <div class="item"><b></b>Mods</div>
+                    <div class="item"><b></b>Packs</div>
+                    <div class="grp">General</div>
+                    <div class="item"><b></b>Settings</div>
+                </div>
+                <div class="mock-main">
+                    <div class="mock-hero">
+                        <div>
+                            <div class="title">1.20.1 · Forge 47.4.28</div>
+                            <div class="sub">Prominence II · 128 mods</div>
+                        </div>
+                        <div class="mock-launch">LAUNCH</div>
+                    </div>
+                    <div class="mock-stats">
+                        <div class="mock-stat"><div class="k">Memory</div><div class="v">6144 MB</div></div>
+                        <div class="mock-stat"><div class="k">Last launch</div><div class="v">13 min ago</div></div>
+                        <div class="mock-stat"><div class="k">Play time</div><div class="v">47 h</div></div>
+                    </div>
+                    <div class="mock-list">
+                        <div class="mock-row"><span class="tick"></span>Verify files<span class="bar"><span style="width:100%"></span></span></div>
+                        <div class="mock-row"><span class="tick"></span>Prepare Java<span class="bar"><span style="width:100%"></span></span></div>
+                        <div class="mock-row"><span class="tick"></span>Sync mods<span class="bar"><span style="width:72%"></span></span></div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </figure>
+    </section>
+
+    <div class="notice">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="flex:none;margin-top:4px" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/>
+        </svg>
+        <span data-lang="en">Unofficial project. Not affiliated with, endorsed by or sponsored by Mojang Studios or Microsoft. “Minecraft” is a trademark of Mojang Studios and is used here only to describe compatibility.</span>
+        <span data-lang="zh">非官方项目，与 Mojang Studios、Microsoft 均无关联，未获其认可或赞助。「Minecraft」是 Mojang Studios 的商标，此处仅用于说明兼容性。</span>
+    </div>
+
+    <!-- ================= 下载 ================= -->
+    <section id="download">
+        <div class="section-head">
+            <span class="kicker"><span data-lang="en">Download</span><span data-lang="zh">下载</span></span>
+            <h2><span data-lang="en">Pick your platform</span><span data-lang="zh">选择你的平台</span></h2>
+            <p>
+                <span data-lang="en">The Windows build ships with its own Java runtime. The jar builds need Java 17 installed.</span>
+                <span data-lang="zh">Windows 版自带 Java 运行时；jar 版本需要本机已有 Java 17。</span>
+            </p>
+        </div>
+
+        <div class="downloads">
+            <a class="dl" href="https://github.com/MisakaMikoto19/MisakaLauncher/releases/latest/download/MisakaLauncher-windows-x64.exe">
+                <span class="ico" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="1.2"/><rect x="13" y="3" width="8" height="8" rx="1.2"/><rect x="3" y="13" width="8" height="8" rx="1.2"/><rect x="13" y="13" width="8" height="8" rx="1.2"/></svg>
+                </span>
+                <span class="txt">
+                    <strong>Windows 10 / 11</strong>
+                    <small><span data-lang="en">x64 · .exe · no install</span><span data-lang="zh">x64 · .exe · 免安装</span></small>
+                </span>
+                <svg class="arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+            </a>
+
+            <a class="dl" href="https://github.com/MisakaMikoto19/MisakaLauncher/releases/latest/download/MisakaLauncher-linux-x64.jar">
+                <span class="ico" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7l5 5-5 5"/><path d="M12 17h8"/></svg>
+                </span>
+                <span class="txt">
+                    <strong>Linux</strong>
+                    <small><span data-lang="en">x64 · .jar · needs Java 17</span><span data-lang="zh">x64 · .jar · 需 Java 17</span></small>
+                </span>
+                <svg class="arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+            </a>
+
+            <a class="dl" href="https://github.com/MisakaMikoto19/MisakaLauncher/releases/latest/download/MisakaLauncher-macos-arm64.jar">
+                <span class="ico" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg>
+                </span>
+                <span class="txt">
+                    <strong>macOS <span data-lang="en">(Apple Silicon)</span><span data-lang="zh">（Apple 芯片）</span></strong>
+                    <small><span data-lang="en">arm64 · .jar · needs Java 17</span><span data-lang="zh">arm64 · .jar · 需 Java 17</span></small>
+                </span>
+                <svg class="arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+            </a>
+
+            <a class="dl" href="https://github.com/MisakaMikoto19/MisakaLauncher/releases/latest/download/MisakaLauncher-macos-x64.jar">
+                <span class="ico" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg>
+                </span>
+                <span class="txt">
+                    <strong>macOS <span data-lang="en">(Intel)</span><span data-lang="zh">（Intel）</span></strong>
+                    <small><span data-lang="en">x64 · .jar · needs Java 17</span><span data-lang="zh">x64 · .jar · 需 Java 17</span></small>
+                </span>
+                <svg class="arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+            </a>
+        </div>
+
+        <p class="hint">
+            <span data-lang="en">Downloads are served by GitHub Releases; the file names are stable across versions.</span>
+            <span data-lang="zh">下载由 GitHub Releases 提供，文件名跨版本保持不变。</span>
+            <a href="https://github.com/MisakaMikoto19/MisakaLauncher/releases"><span data-lang="en">Checksums and older versions →</span><span data-lang="zh">校验值与历史版本 →</span></a>
+        </p>
+    </section>
+
+    <!-- ================= 功能 ================= -->
+    <section id="features">
+        <div class="section-head">
+            <span class="kicker"><span data-lang="en">Features</span><span data-lang="zh">功能</span></span>
+            <h2><span data-lang="en">What it does</span><span data-lang="zh">它能做什么</span></h2>
+            <p>
+                <span data-lang="en">Everything below is in the free build. No launcher account to register, no subscription, no upsell.</span>
+                <span data-lang="zh">下面这些都在免费版里：不需要在启动器里注册账号，没有订阅，也没有内购。</span>
+            </p>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="ico" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
+                </div>
+                <h3><span data-lang="en">Isolated instances</span><span data-lang="zh">实例彼此隔离</span></h3>
+                <p>
+                    <span data-lang="en">Each instance keeps its own version, mods, resource packs, saves and launch arguments, so one broken modpack cannot take down the rest.</span>
+                    <span data-lang="zh">每个实例独立保存版本、模组、资源包、存档与启动参数；一个整合包出问题不会牵连其它实例。</span>
+                </p>
+            </div>
+
+            <div class="feature">
+                <div class="ico" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>
+                </div>
+                <h3><span data-lang="en">Loaders and Java, handled</span><span data-lang="zh">加载器与 Java 自动搞定</span></h3>
+                <p>
+                    <span data-lang="en">Forge, NeoForge, Fabric, Quilt and OptiFine. The launcher installs the Java runtime the game version actually needs, next to itself.</span>
+                    <span data-lang="zh">支持 Forge、NeoForge、Fabric、Quilt、OptiFine；按游戏版本自动安装对应 Java 运行时，放在启动器旁边。</span>
+                </p>
+            </div>
+
+            <div class="feature">
+                <div class="ico" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.2-4.2"/></svg>
+                </div>
+                <h3><span data-lang="en">Search Modrinth and CurseForge</span><span data-lang="zh">直接检索两大平台</span></h3>
+                <p>
+                    <span data-lang="en">Popularity ranking, categories, pagination and thumbnails; install straight into the current instance, with update checks afterwards.</span>
+                    <span data-lang="zh">热度排序、分类筛选、分页与缩略图；装进当前实例，之后还能检查更新。</span>
+                </p>
+            </div>
+
+            <div class="feature">
+                <div class="ico" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+                </div>
+                <h3><span data-lang="en">Resource packs, reordered by drag</span><span data-lang="zh">资源包拖拽排序</span></h3>
+                <p>
+                    <span data-lang="en">Press and hold the handle to reorder; the list order is the override order. A generated atlas-compat pack stays locked at the end for AMD / Intel GPUs.</span>
+                    <span data-lang="zh">按住手柄即可拖动排序，列表顺序就是覆盖顺序。为 AMD / Intel 显卡生成的贴图兼容包锁定在末尾。</span>
+                </p>
+            </div>
+
+            <div class="feature">
+                <div class="ico" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>
+                </div>
+                <h3><span data-lang="en">Modpack import</span><span data-lang="zh">整合包导入</span></h3>
+                <p>
+                    <span data-lang="en">Import CurseForge <code>.zip</code> or Modrinth <code>.mrpack</code> archives, or install one straight from search results.</span>
+                    <span data-lang="zh">导入 CurseForge <code>.zip</code> 或 Modrinth <code>.mrpack</code>，也可直接从检索结果里安装。</span>
+                </p>
+            </div>
+
+            <div class="feature">
+                <div class="ico" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4h-4"/></svg>
+                </div>
+                <h3><span data-lang="en">Self-update, or none at all</span><span data-lang="zh">可自更新，也可完全关掉</span></h3>
+                <p>
+                    <span data-lang="en">Incremental, hash-checked updates with rollback. Point it at your own server or turn it off — it never phones home on its own.</span>
+                    <span data-lang="zh">增量更新、逐块校验、可回滚；可以指向自建服务端，也可以直接关掉，默认不会私自上报。</span>
+                </p>
+            </div>
+        </div>
+
+        </section>
+
+    <!-- ================= 登录与隐私 ================= -->
+    <section id="signin">
+        <div class="section-head">
+            <span class="kicker"><span data-lang="en">Sign-in &amp; privacy</span><span data-lang="zh">登录与隐私</span></span>
+            <h2><span data-lang="en">Your account stays yours</span><span data-lang="zh">账号始终在你自己手里</span></h2>
+        </div>
+
+        <div class="split">
+            <div class="card">
+                <h3><span data-lang="en">How Microsoft sign-in works</span><span data-lang="zh">微软登录是怎么走的</span></h3>
+                <p>
+                    <span data-lang="en">Sign-in uses the standard Microsoft identity platform flow (OAuth 2.0 authorization code with PKCE, public client) in <strong>your own system browser</strong>, then Xbox Live and XSTS, and finally the Minecraft services endpoint to verify that the account owns the game. Only <code>XboxLive.signin</code> and <code>offline_access</code> are requested.</span>
+                    <span data-lang="zh">登录使用微软标准流程（OAuth 2.0 授权码 + PKCE，公共客户端），在 <strong>你自己的系统浏览器</strong> 里完成；随后经 Xbox Live 与 XSTS，最后由 Minecraft 服务端确认账号是否拥有游戏。只申请 <code>XboxLive.signin</code> 与 <code>offline_access</code>。</span>
+                </p>
+                <p>
+                    <span data-lang="en">There is no backend account system. Tokens stay on your machine (DPAPI on Windows, file permissions elsewhere), are never sent to any server we operate, and are redacted from logs and crash reports.</span>
+                    <span data-lang="zh">没有自有账号服务器：令牌只保存在本机（Windows 用 DPAPI 加密），不会上传到本项目运营的任何服务器，日志与崩溃报告里的令牌会被脱敏。</span>
+                </p>
+                <p>
+                    <span data-lang="en">Sign-in is the only way into the game: there is no offline mode and no third-party account system. If the launcher reports that its application is not registered, the Microsoft application used by that build has not been approved by Mojang yet — please wait for the approval or use another launcher in the meantime.</span>
+                    <span data-lang="zh">登录是进入游戏的唯一方式：没有离线模式，也不接任何第三方账户体系。若提示应用未登记，说明该构建使用的微软应用尚未通过 Mojang 审核 —— 请等待审核通过，或暂时改用其它启动器。</span>
+                </p>
+            </div>
+
+            <div class="card">
+                <h3><span data-lang="en">What we never do</span><span data-lang="zh">我们不做的事</span></h3>
+                <ul class="checklist">
+                    <li>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+                        <span data-lang="en">No telemetry, no analytics, no crash reporting to us.</span>
+                        <span data-lang="zh">没有遥测、没有统计，崩溃报告不会发给我们。</span>
+                    </li>
+                    <li>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+                        <span data-lang="en">No embedded login form — the password is only typed on Microsoft’s page.</span>
+                        <span data-lang="zh">不内嵌登录表单，密码只在微软页面上输入。</span>
+                    </li>
+                    <li>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+                        <span data-lang="en">No token relaying, no sharing between users, no hiding the game download.</span>
+                        <span data-lang="zh">不转发令牌、不在用户之间共享、不代下游戏本体。</span>
+                    </li>
+                    <li>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+                        <span data-lang="en">No ownership bypass — accounts without Java Edition are told so.</span>
+                        <span data-lang="zh">不绕过正版校验，未拥有 Java Edition 的账号会被明确拒绝。</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 运行要求 ================= -->
+    <section id="requirements">
+        <div class="section-head">
+            <span class="kicker"><span data-lang="en">Requirements</span><span data-lang="zh">运行要求</span></span>
+            <h2><span data-lang="en">What you need</span><span data-lang="zh">需要什么</span></h2>
+        </div>
+
+        <table class="req">
+            <tr>
+                <th>Windows</th>
+                <td>
+                    <span data-lang="en">10 or 11, x64. The portable build brings its own Java runtime — nothing to install.</span>
+                    <span data-lang="zh">10 或 11，x64。便携版自带 Java 运行时，无需另外安装。</span>
+                </td>
+            </tr>
+            <tr>
+                <th>Linux</th>
+                <td>
+                    <span data-lang="en">x64, with Java 17 available. Any desktop with GTK works; the UI is drawn by JavaFX, not a browser engine.</span>
+                    <span data-lang="zh">x64，需要 Java 17。任何带 GTK 的桌面环境都可以；界面由 JavaFX 绘制，不依赖浏览器内核。</span>
+                </td>
+            </tr>
+            <tr>
+                <th>macOS</th>
+                <td>
+                    <span data-lang="en">11 or newer, Intel or Apple Silicon, with Java 17 available.</span>
+                    <span data-lang="zh">11 及以上，Intel 或 Apple 芯片，需要 Java 17。</span>
+                </td>
+            </tr>
+            <tr>
+                <th><span data-lang="en">Account</span><span data-lang="zh">账号</span></th>
+                <td>
+                    <span data-lang="en">A Microsoft account that owns Minecraft: Java Edition. Accounts without the game cannot sign in.</span>
+                    <span data-lang="zh">一个拥有 Minecraft: Java Edition 的微软账号；未拥有游戏的账号无法登录。</span>
+                </td>
+            </tr>
+        </table>
+    </section>
+
+    <!-- ================= FAQ ================= -->
+    <section id="faq">
+        <div class="section-head">
+            <span class="kicker">FAQ</span>
+            <h2><span data-lang="en">Questions people actually ask</span><span data-lang="zh">常被问到的问题</span></h2>
+        </div>
+
+        <div class="faq">
+            <details>
+                <summary><span data-lang="en">Is this an official launcher?</span><span data-lang="zh">这是官方启动器吗？</span></summary>
+                <p>
+                    <span data-lang="en">No. It is an independent, open-source project (MIT). It does not ship the game and it does not grant access to accounts that do not own Minecraft: Java Edition.</span>
+                    <span data-lang="zh">不是。这是一个独立的开源项目（MIT）。它不分发游戏本体，也不会让未拥有 Minecraft: Java Edition 的账号获得访问权限。</span>
+                </p>
+            </details>
+
+            <details>
+                <summary><span data-lang="en">Microsoft sign-in says “Invalid app registration”. Why?</span><span data-lang="zh">微软登录报 “Invalid app registration” 是什么原因？</span></summary>
+                <p>
+                    <span data-lang="en">The Microsoft application used by that build has not been approved by Mojang’s API allow list yet, so the game cannot be launched at all — there is no offline fallback by design. Nothing is wrong with your machine or your account.</span>
+                    <span data-lang="zh">该构建使用的微软应用还没有通过 Mojang 的 API 白名单审核，因此暂时无法启动游戏 —— 本启动器不提供离线兜底。这不是你机器或账号的问题。</span>
+                </p>
+            </details>
+
+            <details>
+                <summary><span data-lang="en">Where is my data stored?</span><span data-lang="zh">我的数据存在哪？</span></summary>
+                <p>
+                    <span data-lang="en">Everything lives in the launcher’s own folder (portable by default): instances, mods, saves, Java runtimes, logs and settings. Delete the folder to uninstall; there is no uninstaller and no registry litter.</span>
+                    <span data-lang="zh">全部在启动器自己的目录里（默认便携）：实例、模组、存档、Java 运行时、日志与设置。删掉目录即卸载，没有卸载程序和注册表残留。</span>
+                </p>
+            </details>
+
+            <details>
+                <summary><span data-lang="en">Can I use my own update server?</span><span data-lang="zh">可以接自建的更新服务吗？</span></summary>
+                <p>
+                    <span data-lang="en">Yes. The update client speaks a small documented protocol (health, check, changelog, chunked download) and points at a configurable base URL; leaving it blank simply disables auto-update. The contract is in the repository under <code>docs/SELF-HOSTING.md</code>.</span>
+                    <span data-lang="zh">可以。更新客户端使用一套小而明确的协议（健康检查、检查更新、更新说明、分块下载），地址可配置；留空即关闭自动更新。接口契约见仓库里的 <code>docs/SELF-HOSTING.md</code>。</span>
+                </p>
+            </details>
+        </div>
+    </section>
+
+    <!-- ================= 页脚 ================= -->
+    <footer>
+        <div class="cols">
+            <div>
+                <a class="brand" href="index.html" style="margin-bottom:8px">
+                    <img class="mark" src="assets/icon.webp" width="22" height="22" alt="">
+                    Misaka Launcher
+                </a>
+                <div class="tagline">
+                    <span data-lang="en">An unofficial, open-source launcher for Minecraft: Java Edition.</span>
+                    <span data-lang="zh">非官方、开源的 Minecraft: Java Edition 启动器。</span>
+                </div>
+            </div>
+            <div>
+                <h4><span data-lang="en">Product</span><span data-lang="zh">项目</span></h4>
+                <a href="https://github.com/MisakaMikoto19/MisakaLauncher/releases"><span data-lang="en">Downloads</span><span data-lang="zh">下载</span></a>
+                <a href="https://github.com/MisakaMikoto19/MisakaLauncher"><span data-lang="en">Source code</span><span data-lang="zh">源代码</span></a>
+                <a href="https://github.com/MisakaMikoto19/MisakaLauncher/issues"><span data-lang="en">Issues</span><span data-lang="zh">问题反馈</span></a>
+            </div>
+            <div>
+                <h4><span data-lang="en">Documents</span><span data-lang="zh">文档</span></h4>
+                <a href="https://github.com/MisakaMikoto19/MisakaLauncher/blob/main/README.md">README</a>
+                <a href="https://github.com/MisakaMikoto19/MisakaLauncher/blob/main/docs/SELF-HOSTING.md"><span data-lang="en">Self-hosting</span><span data-lang="zh">自建服务端</span></a>
+                <a href="https://github.com/MisakaMikoto19/MisakaLauncher/blob/main/使用说明.md"><span data-lang="en">User guide (zh)</span><span data-lang="zh">使用说明</span></a>
+            </div>
+            <div>
+                <h4><span data-lang="en">Legal</span><span data-lang="zh">法律</span></h4>
+                <a href="privacy.html"><span data-lang="en">Privacy Policy</span><span data-lang="zh">隐私政策</span></a>
+                <a href="terms.html"><span data-lang="en">Terms of Service</span><span data-lang="zh">服务条款</span></a>
+                <a href="https://github.com/MisakaMikoto19/MisakaLauncher/blob/main/LICENSE">MIT License</a>
+            </div>
+        </div>
+        <div class="legal">
+            <span data-lang="en">Misaka Launcher is an unofficial third-party project. It is not affiliated with, endorsed by, or sponsored by Mojang Studios or Microsoft. “Minecraft” is a trademark of Mojang Studios; the name is used here only to describe compatibility.</span>
+            <span data-lang="zh">Misaka Launcher 是非官方第三方项目，与 Mojang Studios、Microsoft 均无关联，未获其认可或赞助。「Minecraft」是 Mojang Studios 的商标，此处仅用于说明兼容性。</span>
+        </div>
+    </footer>
+
+</div>
+
+<script>
+    (function () {
+        var KEY = 'misaka-lang';
+        var root = document.documentElement;
+
+        function apply(lang) {
+            root.setAttribute('data-lang', lang);
+            root.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            var buttons = document.querySelectorAll('[data-set-lang]');
+            for (var i = 0; i < buttons.length; i++) {
+                var on = buttons[i].getAttribute('data-set-lang') === lang;
+                buttons[i].classList.toggle('on', on);
+                buttons[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+            }
+        }
+
+        var buttons = document.querySelectorAll('[data-set-lang]');
+        for (var i = 0; i < buttons.length; i++) {
+            buttons[i].addEventListener('click', function () {
+                var lang = this.getAttribute('data-set-lang');
+                try { localStorage.setItem(KEY, lang); } catch (e) { }
+                apply(lang);
+            });
+        }
+
+        var saved = null;
+        try { saved = localStorage.getItem(KEY); } catch (e) { }
+        apply(saved === 'zh' ? 'zh' : 'en');
+    })();
+</script>
+</body>
+</html>

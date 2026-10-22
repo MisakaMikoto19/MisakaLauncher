@@ -1,0 +1,10 @@
+# shell 脚本必须保持 LF：
+#   - gradlew / build_all.sh / release.sh 在 Linux 上要能直接执行；
+#   - packaging/unix/SelfExtractHeader.sh 会被原样拼进 Linux 单文件发布包，
+#     一旦变成 CRLF，目标机上的 shebang 会变成「bad interpreter: /bin/sh^M」。
+# Windows 上 core.autocrlf 默认为 true，不显式约束就会被转成 CRLF，故在此固定。
+*.sh text eol=lf
+gradlew text eol=lf
+
+# Windows 批处理反过来，必须是 CRLF
+*.bat text eol=crlf

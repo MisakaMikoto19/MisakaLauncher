@@ -1,0 +1,54 @@
+name: Deploy site
+
+# 站点放在 site/ 目录，而「从分支发布」只支持 / 或 /docs，所以这里用 Actions 发布：
+# 把 site/ 作为产物上传，再交给 Pages 部署。
+#
+# 使用前提（只需设置一次）：仓库 Settings → Pages → Source 选「GitHub Actions」。
+# 注意：那个页面上还会推荐 "GitHub Pages Jekyll" / "Static HTML" 两个模板，
+# **不要点它们的 Configure** —— 那会再生成一个工作流，和本文件抢同一个站点。
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时刻只跑一个部署；连续推送时取消排队中的旧任务
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          # 仓库第一次发布时 Pages 还没启用，configure-pages 会拿到 404 直接失败
+          # （"Get Pages site failed"）。enablement 让它顺手把 Pages 建好并把
+          # 发布源设为 GitHub Actions，省掉一次手工设置。
+          enablement: true
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 只发布 site/：docs/ 里的技术文档不进站点
+          path: site
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

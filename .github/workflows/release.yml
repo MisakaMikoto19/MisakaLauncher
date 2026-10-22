@@ -1,0 +1,251 @@
+name: Build & Release
+
+# 触发方式：
+#   - 手动触发（用于验证三平台构建是否健康）
+#   - 打 v* 标签时自动构建并生成 Release
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: 构建 ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # 一个平台失败不应该让其他平台的结果丢失
+      fail-fast: false
+      matrix:
+        include:
+          - platform: Windows
+            os: windows-latest
+            dist: build_windows
+          - platform: Linux
+            os: ubuntu-latest
+            dist: build_linux
+          - platform: macOS
+            os: macos-latest
+            dist: build_macos
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      # 必须使用 JDK 17：项目用它的 jmods 做 jlink。
+      # 注意 jpackage/jlink 不支持交叉生成，因此三平台必须各自构建。
+      - name: 安装 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: 配置 Gradle 缓存
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: 赋予 gradlew 执行权限
+        if: runner.os != 'Windows'
+        run: chmod +x ./gradlew
+
+      # 产物目录需可写：便携模式会把数据写到安装目录旁
+      #
+      # 凭据在这里注入：仓库里没有任何 Client ID / API Key，
+      # core:generateBuildSecrets 会把它们生成为编译期常量。
+      # 未配置 Secrets 时为空串（= 开源版的默认行为：正版登录不可用）。
+      - name: 构建并自检
+        shell: bash
+        env:
+          MISAKA_MS_CLIENT_ID: ${{ secrets.MISAKA_MS_CLIENT_ID }}
+          MISAKA_CURSEFORGE_API_KEY: ${{ secrets.MISAKA_CURSEFORGE_API_KEY }}
+        run: |
+          ./gradlew :core:test :app:misakaDist :app:smokeTest --console=plain --stacktrace
+
+      - name: 上传免安装版
+        uses: actions/upload-artifact@v4
+        with:
+          name: MisakaLauncher-${{ matrix.dist }}
+          path: ${{ matrix.dist }}/
+          if-no-files-found: error
+
+      # 站点首页的下载按钮写的是固定文件名（在 /site 里），这里顺手把它们产出，
+      # 免得每次发版都要人工复制一份改名。
+      - name: 生成站点固定名资产
+        if: runner.os == 'Windows'
+        shell: bash
+        env:
+          MISAKA_MS_CLIENT_ID: ${{ secrets.MISAKA_MS_CLIENT_ID }}
+          MISAKA_CURSEFORGE_API_KEY: ${{ secrets.MISAKA_CURSEFORGE_API_KEY }}
+        run: |
+          ./gradlew :app:releaseDist --console=plain
+          mkdir -p site-assets
+          cp dist/MisakaLauncher-*.exe site-assets/ 2>/dev/null || true
+          ls -l site-assets
+
+      - name: 上传站点资产（exe）
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-assets-exe
+          path: site-assets/
+          if-no-files-found: warn
+
+  installer:
+    name: 生成安装包 ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    needs: build
+    # 安装包依赖平台工具（Windows 需 WiX、Linux 需 dpkg-deb、macOS 原生支持），
+    # 因此与免安装版分开，失败不回滚主产物
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: Windows
+            os: windows-latest
+            dist: build_windows
+          - platform: Linux
+            os: ubuntu-latest
+            dist: build_linux
+          - platform: macOS
+            os: macos-latest
+            dist: build_macos
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: 配置 Gradle 缓存
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: 安装 WiX（Windows 生成 msi 所需）
+        if: runner.os == 'Windows'
+        run: choco install wixtoolset --no-progress -y
+
+      - name: 赋予 gradlew 执行权限
+        if: runner.os != 'Windows'
+        run: chmod +x ./gradlew
+
+      - name: 生成安装包
+        shell: bash
+        env:
+          MISAKA_MS_CLIENT_ID: ${{ secrets.MISAKA_MS_CLIENT_ID }}
+          MISAKA_CURSEFORGE_API_KEY: ${{ secrets.MISAKA_CURSEFORGE_API_KEY }}
+        run: ./gradlew :app:packageInstaller --console=plain --stacktrace
+
+      - name: 上传安装包
+        uses: actions/upload-artifact@v4
+        with:
+          name: MisakaLauncher-installer-${{ matrix.dist }}
+          path: |
+            ${{ matrix.dist }}/*.msi
+            ${{ matrix.dist }}/*.deb
+            ${{ matrix.dist }}/*.dmg
+          if-no-files-found: warn
+
+  site-assets:
+    name: 站点下载资产（jar）
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: 配置 Gradle 缓存
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: 赋予 gradlew 执行权限
+        run: chmod +x ./gradlew
+
+      # jar 都是交叉编译的，任意平台都能出，所以集中在这一个 job 里做
+      - name: 交叉编译并改名为固定名
+        shell: bash
+        env:
+          MISAKA_MS_CLIENT_ID: ${{ secrets.MISAKA_MS_CLIENT_ID }}
+          MISAKA_CURSEFORGE_API_KEY: ${{ secrets.MISAKA_CURSEFORGE_API_KEY }}
+        run: |
+          ./gradlew :app:distJarAll --console=plain
+          ver=$(grep -E '^misaka\.version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+          mkdir -p site-assets
+          cp "dist/MisakaLauncher-${ver}-linux-amd64.jar"   site-assets/MisakaLauncher-linux-x64.jar
+          cp "dist/MisakaLauncher-${ver}-macos-amd64.jar"   site-assets/MisakaLauncher-macos-x64.jar
+          cp "dist/MisakaLauncher-${ver}-macos-aarch64.jar" site-assets/MisakaLauncher-macos-arm64.jar
+          ls -l site-assets
+
+      - name: 上传站点资产（jar）
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-assets-jars
+          path: site-assets/
+          if-no-files-found: error
+
+  release:
+    name: 发布
+    runs-on: ubuntu-latest
+    needs: [build, site-assets]
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 下载全部产物
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: 打包免安装版并收集站点资产
+        run: |
+          mkdir -p out
+          cd artifacts
+          for dir in MisakaLauncher-build_*; do
+            [ -d "$dir" ] || continue
+            zip -r "../out/${dir}.zip" "$dir" > /dev/null
+          done
+          cd ..
+          # 站点固定名资产：与 site/ 里的下载链接一一对应，缺了前端就是 404
+          for extra in artifacts/site-assets-jars artifacts/site-assets-exe; do
+            if [ -d "$extra" ]; then cp -v "$extra"/* out/; fi
+          done
+          echo "---- 将发布的文件 ----"
+          ls -l out
+
+      - name: 创建 Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*
+          generate_release_notes: true
+          body: |
+            ## Misaka Launcher ${{ github.ref_name }}
+
+            ### 直接下载（文件名固定，网站按钮用的就是这些）
+
+            | 平台 | 文件 |
+            | --- | --- |
+            | Windows 10 / 11 x64 | `MisakaLauncher-windows-x64.exe` |
+            | Linux x64 | `MisakaLauncher-linux-x64.jar` |
+            | macOS（Apple 芯片） | `MisakaLauncher-macos-arm64.jar` |
+            | macOS（Intel） | `MisakaLauncher-macos-x64.jar` |
+
+            ### 免安装版（整目录解压即用，自带 Java 运行时）
+
+            | 平台 | 启动方式 |
+            | --- | --- |
+            | Windows | `MisakaLauncher/MisakaLauncher.exe` |
+            | Linux | `MisakaLauncher/bin/MisakaLauncher` |
+            | macOS | `MisakaLauncher.app` |
+
+            > 带版本号的文件（如 `MisakaLauncher-${{ github.ref_name }}-windows-amd64.jar`）
+            > 供自更新服务按版本登记使用；固定名的与本版本内容完全一致。

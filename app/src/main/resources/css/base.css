@@ -1,0 +1,1157 @@
+/*
+ * Misaka Launcher - 基础样式表
+ *
+ * 设计约定：
+ *  1. 所有颜色都通过 looked-up colors 定义（-c-*），主题文件只覆写这些变量，
+ *     因此切换主题 / 自定义强调色都不需要重建界面节点。
+ *  2. 组件类名统一使用「语义名」，而不是「外观名」（如 .glass-card 而非 .dark-round-box），
+ *     以便浅色主题复用同一套结构。
+ *  3. 微交互动画无法用 CSS 表达（JavaFX 不支持 transition），
+ *     统一由 Ui 工具类用 Transition 实现，样式表只描述静态外观。
+ */
+
+.root {
+    /* ---- 颜色令牌（暗色默认值，主题文件会覆盖） ---- */
+    -c-bg: #0B0E14;
+    -c-bg-alt: #10151F;
+    /* 整窗外壳遮罩：压在背景图之上、UI 控件之下的那一层，玻璃拟态的来源。
+       代码侧（ThemeManager）会按「覆盖层透明度」重写它的 alpha ——
+       100% 时 alpha 归零，背景图以本色显示；这里的值只是兜底默认 */
+    -c-shell-veil: rgba(9, 12, 18, 0.72);
+    -c-card: rgba(20, 25, 38, 0.68);
+    -c-card-solid: #141926;
+    /* 毛玻璃的"反光"：卡片顶部一道极淡的高光。
+       JavaFX 没有 backdrop-filter，磨砂质感靠「半透明底 + 高光 + 柔化投影」组合表达 */
+    -c-glass-sheen: rgba(255, 255, 255, 0.07);
+    -c-card-border: rgba(124, 92, 255, 0.20);
+    -c-card-border-strong: rgba(124, 92, 255, 0.42);
+    -c-text: #E6E8EF;
+    -c-text-dim: #9AA3B2;
+    -c-text-mute: #5A6273;
+    -c-accent: #7C5CFF;
+    -c-accent-2: #22D3EE;
+    -c-accent-3: #5B8CFF;
+    -c-accent-soft: rgba(124, 92, 255, 0.18);
+    /* 强调色用于「文字/图标」时的版本：比色块用的强调色更贴近前景对比度要求，
+       否则浅色强调色（例如 #B7A2FF）落在浅底上几乎看不见。自定义强调色时由
+       ThemeManager 覆盖成按亮度算出来的值。 */
+    -c-accent-text: #7C5CFF;
+    /* 侧边栏高亮渐变的第二条色：默认沿用原来的青色观感 */
+    -c-accent-veil: rgba(34, 211, 238, 0.14);
+    -c-success: #34D399;
+    -c-warn: #FBBF24;
+    -c-error: #F87171;
+    -c-info: #60A5FA;
+    -c-hover: rgba(255, 255, 255, 0.07);
+    -c-pressed: rgba(255, 255, 255, 0.12);
+    -c-track: rgba(255, 255, 255, 0.10);
+    -c-scroll: rgba(255, 255, 255, 0.16);
+    -c-scroll-hover: rgba(255, 255, 255, 0.30);
+    -c-shadow: rgba(0, 0, 0, 0.45);
+    /* 侧边栏等「面板」类容器：比卡片稍暗，用来把导航与内容区分开 */
+    -c-panel: rgba(12, 16, 26, 0.62);
+    /* 强调色渐变上的前景色：暗色主题用深色文字，浅色主题改用白色 */
+    -c-on-accent: #0B0E14;
+    -c-on-accent-dim: rgba(11, 14, 20, 0.72);
+
+    -fx-background-color: transparent;
+    -fx-font-family: "Source Han Sans SC", "Microsoft YaHei UI", "PingFang SC", "Noto Sans CJK SC", "Segoe UI", "Inter", sans-serif;
+    -fx-font-size: 13px;
+    -fx-text-fill: -c-text;
+}
+
+/* ==================================================================
+ * 布局骨架
+ * ================================================================== */
+
+.app-root {
+    -fx-background-color: transparent;
+}
+
+/*
+ * 圆角框架：投影与描边由它承担。
+ * 它必须位于「被圆角裁剪的容器」之外 —— 若把投影放在被裁剪的节点上，
+ * 投影会被同一条裁剪规则剪掉，窗口看上去就像没有投影。
+ */
+.window-frame {
+    -fx-background-color: transparent;
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(255, 255, 255, 0.10);
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, -c-shadow, 18, 0.14, 0, 6);
+}
+
+/* 最大化：去掉圆角与投影，否则屏幕四边会留出透明缝隙 */
+.window-frame.maximized {
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-color: transparent;
+    -fx-effect: null;
+}
+
+/* 半透明遮罩：压在背景层之上，形成玻璃拟态。
+   强度由 -c-shell-veil 驱动（ThemeManager 按「覆盖层透明度」实时改写）：
+   以前这里写死 rgba(9,12,18,0.72)，导致透明度拉到 100% 时背景图仍被主题色染色 */
+.window-shell {
+    -fx-background-color: -c-shell-veil;
+}
+
+.title-bar {
+    -fx-background-color: transparent;
+    /* 外壳已提供统一内边距，这里只做 2px 视觉微调：
+       使标题栏左边缘与导航栏、内容区的左基线对齐 */
+    -fx-padding: 0 0 0 2;
+}
+
+.title-bar-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -c-text;
+}
+
+/* ==================================================================
+ * 侧边栏（HMCL 风格的分组导航）
+ * ================================================================== */
+
+.sidebar {
+    /* 与卡片同一套毛玻璃语言：顶部高光 + 半透明面板底 */
+    -fx-background-color:
+        linear-gradient(to bottom, -c-glass-sheen, transparent 34%),
+        -c-panel;
+    -fx-background-insets: 0, 0;
+    -fx-background-radius: 14, 14;
+    -fx-border-color: -c-card-border;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 12 10 12 10;
+}
+
+/* 会滑动到当前条目的高亮块：位于内容之下，因此用渐变而非边框做出层次 */
+.side-highlight {
+    /* 第二条色用变量而不是写死的青色：否则换了强调色，高亮块仍带一段青色 */
+    -fx-background-color: linear-gradient(to right, -c-accent-soft, -c-accent-veil);
+    -fx-background-radius: 10;
+}
+
+.side-group-box {
+    -fx-padding: 12 6 6 6;
+}
+
+.side-group {
+    -fx-font-size: 11.5px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -c-text-mute;
+}
+
+.side-group-line {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+}
+
+.side-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 10;
+    -fx-padding: 0 10 0 10;
+    -fx-cursor: hand;
+}
+
+.side-item:hover {
+    -fx-background-color: -c-hover;
+}
+
+.side-item-label {
+    -fx-font-size: 13.5px;
+    -fx-text-fill: -c-text-dim;
+}
+
+.side-item:hover .side-item-label {
+    -fx-text-fill: -c-text;
+}
+
+.side-item.selected .side-item-label {
+    /* 选中项的文字用强调色而不是普通文字色：否则换了强调色，只有背景块变了，
+       文字还是灰的，看起来「主题色没生效」 */
+    -fx-text-fill: -c-accent-text;
+    -fx-font-weight: bold;
+}
+
+.side-account {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-radius: 11;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-radius: 11;
+    -fx-padding: 8 10 8 10;
+}
+
+.side-account:hover {
+    -fx-background-color: -c-hover;
+    -fx-border-color: -c-card-border-strong;
+}
+
+.side-account-name {
+    -fx-font-size: 13.5px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -c-text;
+}
+
+.side-account-type {
+    -fx-font-size: 11px;
+    -fx-text-fill: -c-text-mute;
+}
+
+.side-footer {
+    -fx-font-size: 11px;
+    -fx-text-fill: -c-text-mute;
+    -fx-padding: 8 6 2 6;
+}
+
+/* ==================================================================
+ * 底部启动栏
+ * ================================================================== */
+
+/* 刻意不加背景：让启动卡片像 HMCL 那样直接悬浮在背景之上 */
+.launch-bar {
+    -fx-background-color: transparent;
+}
+
+.launch-card {
+    -fx-background-color: linear-gradient(to right, -c-accent, -c-accent-2);
+    -fx-background-radius: 14;
+    -fx-padding: 7 12 7 12;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(124, 92, 255, 0.35), 18, 0.2, 0, 4);
+}
+
+.launch-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(124, 92, 255, 0.55), 26, 0.28, 0, 6);
+}
+
+.launch-card:disabled {
+    -fx-opacity: 0.72;
+}
+
+.launch-card-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -c-on-accent;
+}
+
+.launch-card-subtitle {
+    -fx-font-size: 11px;
+    -fx-text-fill: -c-on-accent-dim;
+}
+
+.launch-card-icon {
+    -fx-background-color: rgba(255, 255, 255, 0.26);
+    -fx-background-radius: 100;
+}
+
+/* 卡片内图标必须是强调色上的前景色，默认的青色描边在渐变上几乎看不清 */
+.launch-card .icon-fill-accent {
+    -fx-fill: -c-on-accent;
+}
+
+.launch-card-caret {
+    -fx-background-color: rgba(11, 14, 20, 0.16);
+    -fx-background-radius: 8;
+    -fx-min-width: 26;
+    -fx-min-height: 26;
+    -fx-max-width: 26;
+    -fx-max-height: 26;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.launch-card-caret:hover {
+    -fx-background-color: rgba(11, 14, 20, 0.30);
+}
+
+.launch-card-caret .icon-stroke {
+    -fx-stroke: -c-on-accent;
+}
+
+/* 展开并行任务面板的按钮。
+   注意它并不在启动卡片里 —— 它在启动栏的普通背景上，只是长得和卡片里的
+   实例切换箭头很像。如果复用 .launch-card-caret，就会继承那套「渐变色卡片上的
+   前景色」：浅色主题下前景是白色、按钮底色也是白色，而页面又是浅色，
+   整颗按钮等于看不见。这里改用与页面背景相配的主题变量。 */
+.task-expand {
+    -fx-background-color: -c-card-solid;
+    -fx-background-radius: 9;
+    -fx-background-insets: 0;
+    /* 用 strong 档描边：这颗 chip 是孤零零站在页面上的（不像卡片里的箭头有渐变托底），
+       弱描边会糊成一片，看不出按钮边界 */
+    -fx-border-color: -c-card-border-strong;
+    -fx-border-radius: 9;
+    -fx-border-width: 1;
+    -fx-min-width: 30;
+    -fx-min-height: 30;
+    -fx-max-width: 30;
+    -fx-max-height: 30;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.task-expand:hover {
+    -fx-background-color: -c-accent-soft;
+    -fx-border-color: -c-accent;
+}
+
+.task-expand .icon-stroke {
+    -fx-stroke: -c-text-dim;
+}
+
+.task-expand:hover .icon-stroke {
+    -fx-stroke: -c-accent;
+}
+
+/* 面板收起时若有任务失败：展开按钮换成警示配色。
+   失败不再自动展开面板（面板只由用户手动展开），但收起的启动栏只显示「就绪」，
+   一点提示都不给就等于失败无声。这里只改外观与提示文案，展开与否仍由用户点击决定。
+   叠两个类是为了压过上面 .task-expand:hover 的同名属性。 */
+.task-expand.task-expand-alert {
+    -fx-background-color: rgba(248, 113, 113, 0.16);
+    -fx-border-color: -c-error;
+}
+
+.task-expand.task-expand-alert .icon-stroke {
+    -fx-stroke: -c-error;
+}
+
+.task-expand.task-expand-alert:hover {
+    -fx-background-color: rgba(248, 113, 113, 0.26);
+    -fx-border-color: -c-error;
+}
+
+/* 停止按钮：可点击范围要一眼看得出边界，否则用户看到的就是「一个悬空的词」，
+   既不知道能不能点、也不知道按钮有多大。所以给它显式尺寸。
+   选择器带上 .launch-bar 是为了压过后面同特异性的 .ghost-button（内边距/字号），
+   否则这里的尺寸会被它按源码顺序盖掉。 */
+.launch-bar .stop-button {
+    -fx-min-height: 36;
+    -fx-padding: 7 18 7 13;
+    -fx-font-size: 13px;
+    -fx-graphic-text-gap: 7;
+}
+
+.launch-bar .stop-button .icon-stroke {
+    -fx-stroke: -c-text-dim;
+}
+
+.launch-bar .stop-button:hover .icon-stroke {
+    -fx-stroke: -c-error;
+}
+
+/* ==================================================================
+ * 标题栏品牌
+ * ================================================================== */
+
+.brand-logo {
+    -fx-background-color: linear-gradient(to bottom right, -c-accent, -c-accent-2);
+    -fx-background-radius: 6;
+    -fx-effect: dropshadow(gaussian, rgba(124, 92, 255, 0.45), 10, 0.2, 0, 2);
+}
+
+.title-bar-version {
+    -fx-font-size: 11.5px;
+    -fx-text-fill: -c-text-mute;
+}
+
+.status-chip {
+    -fx-background-color: -c-hover;
+    -fx-background-radius: 8;
+    -fx-padding: 3 9 3 9;
+    -fx-font-size: 11.5px;
+    -fx-text-fill: -c-text-dim;
+}
+
+.content-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.content-host {
+    -fx-background-color: transparent;
+}
+
+/* ==================================================================
+ * 卡片
+ * ================================================================== */
+
+.glass-card {
+    /* 两层：顶部玻璃高光 + 卡片底色（insets/radius 各一层，顺序即叠放顺序）。
+       高光让卡片在图片背景上"浮起来"，看起来是磨砂玻璃而不只是一块半透明色。 */
+    -fx-background-color:
+        linear-gradient(to bottom, -c-glass-sheen, transparent 42%),
+        -c-card;
+    -fx-background-insets: 0, 0;
+    -fx-background-radius: 16, 16;
+    -fx-border-color: -c-card-border;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-padding: 18;
+    /* 投影更大更散：玻璃是"浮"在背景上的，锐利的投影会显得像贴纸 */
+    -fx-effect: dropshadow(gaussian, -c-shadow, 26, 0.14, 0, 10);
+}
+
+.glass-card:hover {
+    -fx-border-color: -c-card-border-strong;
+}
+
+.hero-card {
+    -fx-background-color:
+        linear-gradient(to bottom, -c-glass-sheen, transparent 46%),
+        linear-gradient(to bottom right, rgba(124, 92, 255, 0.20), rgba(20, 25, 38, 0.72) 55%, rgba(34, 211, 238, 0.16));
+    -fx-background-insets: 0, 0;
+    -fx-background-radius: 20, 20;
+    -fx-border-color: -c-card-border-strong;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-padding: 24;
+    -fx-effect: dropshadow(gaussian, -c-shadow, 34, 0.16, 0, 12);
+}
+
+.card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -c-text;
+}
+
+.card-value {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -c-text;
+}
+
+.page-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -c-text;
+}
+
+.page-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: -c-text-dim;
+}
+
+.section-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -c-text;
+}
+
+.muted {
+    -fx-text-fill: -c-text-dim;
+}
+
+.mute-2 {
+    -fx-text-fill: -c-text-mute;
+    -fx-font-size: 11.5px;
+}
+
+.accent-text {
+    -fx-text-fill: -c-accent-2;
+}
+
+.mono {
+    -fx-font-family: "JetBrains Mono", "Consolas", "Menlo", monospace;
+}
+
+.divider {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-pref-height: 1;
+}
+
+/* ==================================================================
+ * 按钮
+ * ================================================================== */
+
+.primary-button {
+    -fx-background-color: linear-gradient(to right, -c-accent, -c-accent-2);
+    -fx-background-radius: 10;
+    -fx-text-fill: -c-on-accent;
+    -fx-font-weight: bold;
+    -fx-font-size: 13.5px;
+    -fx-padding: 10 22 10 22;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-effect: dropshadow(gaussian, rgba(124, 92, 255, 0.55), 18, 0.25, 0, 3);
+}
+
+.primary-button:disabled {
+    -fx-opacity: 0.45;
+}
+
+.ghost-button {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-background-radius: 9;
+    -fx-border-color: rgba(255, 255, 255, 0.14);
+    -fx-border-radius: 9;
+    -fx-text-fill: -c-text;
+    -fx-padding: 8 16 8 16;
+    -fx-cursor: hand;
+}
+
+.ghost-button:hover {
+    /* 底色本身就是 -c-hover 量级，悬停还用同一个值等于没有任何变化 ——
+       必须跨一档到 -c-pressed，配合描边变色才构成可察觉的悬停反馈 */
+    -fx-background-color: -c-pressed;
+    -fx-border-color: -c-card-border-strong;
+}
+
+.danger-button {
+    -fx-background-color: rgba(248, 113, 113, 0.16);
+    -fx-background-radius: 9;
+    -fx-border-color: rgba(248, 113, 113, 0.5);
+    -fx-border-radius: 9;
+    -fx-text-fill: -c-error;
+    -fx-padding: 8 16 8 16;
+    -fx-cursor: hand;
+}
+
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-text-fill: -c-text-dim;
+    -fx-font-size: 14px;
+    -fx-min-width: 30;
+    -fx-min-height: 28;
+    -fx-padding: 2 6 2 6;
+    -fx-cursor: hand;
+}
+
+.icon-button:hover {
+    -fx-background-color: -c-hover;
+    -fx-text-fill: -c-text;
+}
+
+.window-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-text-fill: -c-text-dim;
+    -fx-min-width: 34;
+    -fx-min-height: 26;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.window-button:hover {
+    -fx-background-color: -c-hover;
+    -fx-text-fill: -c-text;
+}
+
+.window-button-close:hover {
+    -fx-background-color: rgba(248, 113, 113, 0.85);
+    -fx-text-fill: white;
+}
+
+.pill-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 20;
+    -fx-border-color: rgba(255, 255, 255, 0.16);
+    -fx-border-radius: 20;
+    -fx-text-fill: -c-text-dim;
+    -fx-padding: 6 14 6 14;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.pill-button:hover {
+    -fx-background-color: -c-hover;
+    -fx-text-fill: -c-text;
+}
+
+.pill-button.selected {
+    -fx-background-color: -c-accent-soft;
+    -fx-border-color: -c-accent;
+    -fx-text-fill: -c-text;
+}
+
+/* ==================================================================
+ * 徽标与状态
+ * ================================================================== */
+
+.badge {
+    -fx-background-color: -c-hover;
+    -fx-background-radius: 7;
+    -fx-padding: 2 8 2 8;
+    -fx-font-size: 11px;
+    -fx-text-fill: -c-text-dim;
+}
+
+.badge-accent {
+    -fx-background-color: -c-accent-soft;
+    -fx-text-fill: -c-accent-2;
+}
+
+.badge-success {
+    -fx-background-color: rgba(52, 211, 153, 0.18);
+    -fx-text-fill: -c-success;
+}
+
+.badge-warn {
+    -fx-background-color: rgba(251, 191, 36, 0.18);
+    -fx-text-fill: -c-warn;
+}
+
+.badge-error {
+    -fx-background-color: rgba(248, 113, 113, 0.18);
+    -fx-text-fill: -c-error;
+}
+
+.badge-info {
+    -fx-background-color: rgba(96, 165, 250, 0.18);
+    -fx-text-fill: -c-info;
+}
+
+.step-chip {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-radius: 9;
+    -fx-border-color: rgba(255, 255, 255, 0.10);
+    -fx-border-radius: 9;
+    -fx-padding: 8 12 8 12;
+    -fx-text-fill: -c-text-dim;
+    -fx-font-size: 12px;
+}
+
+.step-chip.active {
+    -fx-border-color: -c-accent;
+    -fx-text-fill: -c-text;
+    -fx-background-color: -c-accent-soft;
+}
+
+.step-chip.done {
+    -fx-border-color: rgba(52, 211, 153, 0.55);
+    -fx-text-fill: -c-success;
+}
+
+.step-chip.failed {
+    -fx-border-color: rgba(248, 113, 113, 0.55);
+    -fx-text-fill: -c-error;
+}
+
+.info-callout {
+    -fx-background-color: rgba(96, 165, 250, 0.10);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(96, 165, 250, 0.34);
+    -fx-border-radius: 10;
+    -fx-padding: 10 12 10 12;
+    -fx-text-fill: -c-text-dim;
+    -fx-font-size: 12px;
+}
+
+.warn-callout {
+    -fx-background-color: rgba(251, 191, 36, 0.10);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(251, 191, 36, 0.34);
+    -fx-border-radius: 10;
+    -fx-padding: 10 12 10 12;
+    -fx-text-fill: -c-text-dim;
+    -fx-font-size: 12px;
+}
+
+/* 崩溃诊断对话框里的单条建议（标题 + 说明）。
+   底色用主题令牌而不是写死的白色半透明：浅色主题下白叠白会连边界都看不出来 */
+.advice-item {
+    -fx-background-color: -c-hover;
+    -fx-background-radius: 10;
+    -fx-border-color: -c-card-border;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 10 12 10 12;
+}
+
+/* ==================================================================
+ * 输入控件
+ * ================================================================== */
+
+.text-field, .text-area, .password-field, .combo-box {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-radius: 9;
+    -fx-border-color: rgba(255, 255, 255, 0.12);
+    -fx-border-radius: 9;
+    -fx-text-fill: -c-text;
+    -fx-prompt-text-fill: -c-text-mute;
+    -fx-padding: 7 11 7 11;
+    -fx-highlight-fill: -c-accent;
+    -fx-highlight-text-fill: white;
+}
+
+/*
+ * TextArea 的文本内容不在控件层，而在内部的 .content 节点里。
+ * 不把它的底色透明掉，深色主题下内容区会保留 Modena 默认的白色 ——
+ * 表现为「同一张卡片里，输入框是暗的、多行文本框是白的」（实测截图）。
+ */
+.text-area .content {
+    -fx-background-color: transparent;
+}
+
+/*
+ * ComboBox 的上下内边距必须单独收掉。
+ * 它的内容区由内部 list-cell 撑开，若控件层再加一份 7~8px，两层叠加会让下拉框比同一行的
+ * 输入框高出约 10px（实测 44.7px vs 34px），整页设置项的基线都会错位。
+ */
+.combo-box {
+    -fx-padding: 1 2 1 2;
+}
+
+.text-field:focused, .text-area:focused, .combo-box:focused {
+    -fx-border-color: -c-accent;
+}
+
+.search-field {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(255, 255, 255, 0.12);
+    -fx-border-radius: 12;
+    -fx-padding: 10 14 10 14;
+    -fx-font-size: 13.5px;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: -c-text;
+    -fx-background-color: transparent;
+    -fx-padding: 6 8 6 8;
+}
+
+/* 下拉箭头：默认是深色，暗色主题下几乎不可见 */
+.combo-box .arrow, .choice-box .arrow {
+    -fx-background-color: -c-text-dim;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: -c-card-solid;
+    -fx-background-radius: 10;
+    -fx-border-color: -c-card-border;
+    -fx-border-radius: 10;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: -c-hover;
+}
+
+.combo-box-popup .list-cell:selected {
+    -fx-background-color: -c-accent-soft;
+}
+
+.check-box {
+    -fx-text-fill: -c-text;
+}
+
+.check-box .box {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-border-color: rgba(255, 255, 255, 0.24);
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.check-box:selected .box {
+    -fx-background-color: -c-accent;
+    -fx-border-color: -c-accent;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: #0B0E14;
+}
+
+.radio-button {
+    -fx-text-fill: -c-text;
+}
+
+.slider .track {
+    -fx-background-color: -c-track;
+    -fx-pref-height: 4;
+}
+
+.slider .thumb {
+    -fx-background-color: -c-accent;
+    -fx-pref-width: 14;
+    -fx-pref-height: 14;
+}
+
+.toggle-button {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-background-radius: 9;
+    -fx-text-fill: -c-text-dim;
+    -fx-padding: 7 14 7 14;
+    -fx-cursor: hand;
+}
+
+.toggle-button:selected {
+    -fx-background-color: -c-accent-soft;
+    -fx-text-fill: -c-text;
+}
+
+/* ==================================================================
+ * 列表 / 表格 / 树
+ * ================================================================== */
+
+.list-view, .table-view, .tree-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.list-cell, .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -c-text;
+    -fx-padding: 6 8 6 8;
+}
+
+.list-cell:filled:hover, .table-row-cell:filled:hover {
+    -fx-background-color: -c-hover;
+    -fx-background-radius: 8;
+}
+
+.list-cell:filled:selected, .table-row-cell:filled:selected {
+    -fx-background-color: -c-accent-soft;
+    -fx-background-radius: 8;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header, .table-view .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.10) transparent;
+    -fx-size: 32;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: -c-text-dim;
+    -fx-font-size: 12px;
+}
+
+.table-view .cell {
+    -fx-text-fill: -c-text;
+    -fx-border-color: transparent;
+}
+
+.list-view .scroll-bar:vertical, .table-view .scroll-bar:vertical,
+.content-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 9;
+}
+
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-pref-height: 9;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: -c-scroll;
+    -fx-background-radius: 5;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: -c-scroll-hover;
+}
+
+.scroll-bar .increment-button, .scroll-bar .decrement-button {
+    -fx-pref-height: 0;
+    -fx-pref-width: 0;
+    -fx-padding: 0;
+}
+
+.scroll-bar .increment-arrow, .scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+/* ==================================================================
+ * 页签（设置页的 TabPane）
+ * ================================================================== */
+
+/*
+ * JavaFX 默认皮肤会给 TabPane 画一条灰底横条 + 外边框，选中页签还有一个方块高亮，
+ * 与整体玻璃风格冲突 —— 这正是「页签样式不统一」的根源。
+ * 这里改造成与 .pill-button 完全一致的分段选择器外观：胶囊底 + 强调色描边，
+ * 让设置页的页签和页面内的其它同类控件看起来是一套东西。
+ */
+.tab-pane {
+    -fx-background-color: transparent;
+    -fx-tab-min-height: 30;
+    -fx-tab-max-height: 30;
+}
+
+.tab-pane > .tab-header-area {
+    -fx-padding: 2 0 12 0;
+}
+
+/* 默认皮肤的那条灰底横条 */
+.tab-pane > .tab-header-area > .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab {
+    -fx-background-color: transparent;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: transparent;
+    -fx-border-width: 1;
+    -fx-padding: 4 14 4 14;
+    -fx-cursor: hand;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:hover {
+    -fx-background-color: -c-hover;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:selected {
+    -fx-background-color: -c-accent-soft;
+    -fx-border-color: -c-accent;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab > .tab-container > .tab-label {
+    -fx-text-fill: -c-text-dim;
+    -fx-font-size: 13px;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:hover > .tab-container > .tab-label {
+    -fx-text-fill: -c-text;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:selected > .tab-container > .tab-label {
+    -fx-text-fill: -c-text;
+    -fx-font-weight: bold;
+}
+
+/* 默认皮肤会在选中页签上再画一个焦点矩形，会与上面的选中态形成「双重选中」观感 */
+.tab-pane > .tab-header-area > .headers-region > .tab .focus-indicator {
+    -fx-border-color: transparent;
+}
+
+.tab-pane > .tab-content-area {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* ==================================================================
+ * 进度
+ * ================================================================== */
+
+.progress-bar {
+    -fx-pref-height: 6;
+}
+
+.progress-bar > .track {
+    -fx-background-color: -c-track;
+    -fx-background-radius: 4;
+}
+
+.progress-bar > .bar {
+    -fx-background-color: linear-gradient(to right, -c-accent, -c-accent-2);
+    -fx-background-radius: 4;
+    -fx-background-insets: 0;
+}
+
+.progress-indicator {
+    -fx-progress-color: -c-accent;
+}
+
+/* ==================================================================
+ * 日志
+ * ================================================================== */
+
+.log-view {
+    -fx-background-color: rgba(6, 8, 12, 0.55);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-radius: 12;
+    -fx-font-family: "JetBrains Mono", "Consolas", "Menlo", monospace;
+    -fx-font-size: 12px;
+    -fx-text-fill: -c-text-dim;
+}
+
+.log-view .content {
+    -fx-background-color: transparent;
+}
+
+.log-line-error {
+    -fx-text-fill: -c-error;
+}
+
+.log-line-warn {
+    -fx-text-fill: -c-warn;
+}
+
+.log-line-info {
+    -fx-text-fill: -c-text-dim;
+}
+
+/* ==================================================================
+ * 提示条
+ * ================================================================== */
+
+.toast {
+    -fx-background-color: rgba(20, 25, 38, 0.94);
+    -fx-background-radius: 11;
+    -fx-border-color: -c-card-border-strong;
+    -fx-border-radius: 11;
+    -fx-padding: 11 16 11 16;
+    -fx-text-fill: -c-text;
+    -fx-font-size: 12.5px;
+    -fx-effect: dropshadow(gaussian, -c-shadow, 20, 0.18, 0, 6);
+}
+
+.toast-success {
+    -fx-border-color: rgba(52, 211, 153, 0.6);
+}
+
+.toast-error {
+    -fx-border-color: rgba(248, 113, 113, 0.6);
+}
+
+.toast-warn {
+    -fx-border-color: rgba(251, 191, 36, 0.6);
+}
+
+/* ==================================================================
+ * 其它
+ * ================================================================== */
+
+.tooltip {
+    -fx-background-color: rgba(20, 25, 38, 0.96);
+    -fx-background-radius: 8;
+    -fx-border-color: -c-card-border;
+    -fx-border-radius: 8;
+    -fx-text-fill: -c-text;
+    -fx-font-size: 12px;
+    -fx-padding: 6 10 6 10;
+}
+
+.separator .line {
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-width: 1 0 0 0;
+}
+
+.hyperlink {
+    -fx-text-fill: -c-accent-2;
+    -fx-border-color: transparent;
+    -fx-underline: false;
+}
+
+.hyperlink:hover {
+    -fx-underline: true;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.avatar-fallback {
+    -fx-background-color: linear-gradient(to bottom right, -c-accent, -c-accent-2);
+    -fx-background-radius: 14;
+    -fx-text-fill: #0B0E14;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+/* ==================================================================
+ * 矢量图标：颜色由主题变量驱动，因此换主题/换强调色会自动跟随
+ * ================================================================== */
+
+.icon-stroke {
+    -fx-stroke: -c-text-dim;
+    -fx-fill: null;
+}
+
+.icon-stroke-strong {
+    -fx-stroke: -c-text;
+}
+
+.icon-stroke-accent {
+    -fx-stroke: -c-accent-2;
+}
+
+.icon-fill {
+    -fx-fill: -c-text;
+}
+
+.icon-fill-accent {
+    -fx-fill: -c-accent-2;
+}
+
+/* 侧边栏图标：未选中为次级色，悬停提亮，选中用强调色标出 */
+.side-item .icon-stroke {
+    -fx-stroke: -c-text-dim;
+}
+
+.side-item:hover .icon-stroke {
+    -fx-stroke: -c-text;
+}
+
+.side-item.selected .icon-stroke {
+    /* 与选中文字同色：图标和文字必须是同一个强调色，否则一深一浅像是没对齐 */
+    -fx-stroke: -c-accent-text;
+}
+
+.icon-button:hover .icon-stroke {
+    -fx-stroke: -c-text;
+}
+
+/* ==================================================================
+ * 并行任务面板：从启动栏向上悬浮（IntelliJ 式运行组件）
+ * ================================================================== */
+
+.task-panel {
+    -fx-background-color: -c-card-solid;
+    -fx-background-radius: 12;
+    -fx-border-color: -c-card-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 14;
+    -fx-effect: dropshadow(gaussian, -c-shadow, 20, 0.15, 0, 6);
+    -fx-max-width: 460;
+}
+
+.task-row {
+    -fx-padding: 2 0 6 0;
+    -fx-border-color: transparent transparent -c-card-border transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+/* 任务行里的「停止这个任务」按钮。
+   .icon-button 默认是「透明底 + 无描边」，只有悬停才显形 —— 于是它就是一块悬空的图标，
+   用户既看不出能不能点、也看不出点击范围（面板底色与它同为 -c-card-solid，
+   连底色差都没有）。参照 .task-expand 的做法：给一层相对面板可辨的浅底 + strong 档描边，
+   并固定成方形，让边界在静止状态就一直在。
+   选择器刻意用两个类叠加（.icon-button.stop-button）而不是只写 .stop-button：
+   后者会误伤启动栏那颗带文字的「停止」与面板头部的「全部停止」，它们本来就靠
+   .ghost-button 的底与描边，不需要这套方形实底。 */
+.icon-button.stop-button {
+    -fx-background-color: -c-hover;
+    -fx-background-radius: 8;
+    -fx-border-color: -c-card-border-strong;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-min-width: 28;
+    -fx-min-height: 28;
+    -fx-max-width: 28;
+    -fx-max-height: 28;
+    -fx-padding: 0;
+}
+
+.icon-button.stop-button:hover {
+    -fx-background-color: -c-accent-soft;
+    -fx-border-color: -c-error;
+}
+
+.icon-button.stop-button .icon-stroke {
+    -fx-stroke: -c-text-dim;
+}
+
+.icon-button.stop-button:hover .icon-stroke {
+    -fx-stroke: -c-error;
+}

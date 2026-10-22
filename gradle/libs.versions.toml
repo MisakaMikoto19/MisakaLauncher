@@ -1,0 +1,21 @@
+[versions]
+jackson = "2.17.2"
+junit = "5.10.2"
+javafx = "21.0.4"
+slf4j = "2.0.13"
+twelvemonkeys = "3.11.0"
+
+[libraries]
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+# 生产运行使用 JUL 桥接：由 core 的 LogManager 直接接管 JUL，
+# 从而避免引入第三方日志实现（体积更小、便于裁剪运行时）
+slf4j-jdk14 = { module = "org.slf4j:slf4j-jdk14", version.ref = "slf4j" }
+# 仅构建期使用：解码设计稿 icon.webp。JavaFX 与 JDK 自带 ImageIO 都不支持 WebP，
+# 解码必须发生在构建期；它只在 iconToolClasspath 上，不会进入分发包。
+twelvemonkeys-imageio-webp = { module = "com.twelvemonkeys.imageio:imageio-webp", version.ref = "twelvemonkeys" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.10.2" }
